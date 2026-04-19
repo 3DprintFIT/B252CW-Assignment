@@ -1,0 +1,218 @@
+= Semestrální práce B242
+:toc:
+:imagesdir: media/
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+== Krystaly
+
+
+Tématem semestrální práce jsou krystaly. Vaším úkolem je v programu OpenSCAD napsat modul, který umí generovat modely krystalů na základě vstupních dat (a modul, který generuje náhodné krystaly), vhodně připravit jeden z vám přidělených krystalů k tisku, vytisknout ho a provést případné dodatečné úpravy.
+
+WARNING: Uvítáme, pokud se na případné problémy s tímto zadáním zeptáte pomocí
+https://github.com/3DprintFIT/B252CW-Assignment/issues[issue] v tomto repozitáři.
+
+=== Generátor krystalů
+
+
+Napište OpenSCAD modul `crystal` dodržující předepsané rozhraní, který na základě vstupních dat zobrazí/vytvoří krystal.
+
+
+----
+module crystal(thorns=[]) { ... }
+----
+
+Vektor (pole) `thorns` obsahuje definice jednotlivých výrůstků (hrotů) z krystalu. Jeden hrot je definován rotací, délkou, poloměrem a počtem segmentů.
+
+
+----
+thorns_abstract = [[[rotx, roty, rotz], height, circumr, seg], ...];
+thorns_example = [[[0,0,0], 30, 3, 4], [[90,0,0], 25.5, 2.65, 7]];
+----
+
+Každý hrot má podobný tvar jako na tomto obrázku:
+
+
+image::rect10491.png[height=300]
+
+Střed spodní strany leží na počátku souřadném. Před rotací hrot ukazuje směrem kolmo vzhůru (po kladné ose Z). Celková délka trnu je `height`, zlom je vzdálen třetí odmocninu `height` od vrchu. Trn má profil pravidelného ("rovnostranného") _n_-úhelníku, kde _n_ je `seg`. Kružnice opsaná tomuto _n_-úhelníku má v místě zlomu poloměr `circumr`, na spodku hrotu je pak poloměr třetinový. Hrot je následně rotován vektorem `+[rotx, roty, rotz]+`.
+
+Krystal je pouze směsicí těchto hrotů.
+
+Pro uvedený dvouhrotový příklad vypadá výsledek asi takto:
+
+
+image::2example.png[height=300]
+
+Dalším úkolem je modul generující náhodné krystaly. Nedostává na vstupu tedy konkrétní data, ale jen jejich meze (uzavřené intervaly) a počet hrotů.
+
+
+----
+module random_crystal(nthorns=350, rot=[-90,100], height=[20,40], circumr=[2,4.5], seg=[3,10]) { ... }
+----
+
+* `nthorns` je počet hrotů
+* další argumenty jsou dvouprvkové vektory určující minimální a maximální hodnoty pro stejnojmenné vlastnosti hrotů (`rot` jsou meze pro `rotx`, `roty` i `rotz`)
+
+Pro generování náhodných čísel můžete použít funkci https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Mathematical_Functions#rands[rands()]. Berte v potaz, že `seg` je (na rozdíl od ostatních náhodných hodnot) celé číslo. Jednotlivá celá čísla včetně krajních hodnot by měla mít stejnou šanci (uniformní rozdělení), pozor, toto se v případě nesplnění bodově postihuje.
+
+Pro výchozí hodnoty může vypadat krystal různě (je náhodný), například takto:
+
+image::350example.png[height=300]
+
+NOTE: Není nutné tuto část semestrální práce dělat, můžete využít hotový STL soubor.
+
+
+=== Vaše krystaly
+
+
+Každému z vás jsou náhodně přiděleny tři náhodně vygenerované krystaly. Máte je k dispozici jak ve formě dat pro modul `crystal()`, tak ve formě STL souboru. 
+
+Vaše krystaly najdete na https://owncloud.cesnet.cz/index.php/s/1b8iBxWoeKWh0Lh[ownCloudu].
+
+Každý krystal má k dispozici zadání ve scadu a STL model.
+Čísla jsou přiřazena studentům takto:
+
+----
+a...a1 127 097 059
+a...in 039 017 137
+a...ma 123 087 034
+a...ra 059 114 121
+b...en 031 078 047
+b...ha 092 004 126
+b...it 110 098 026
+b...le 120 011 131
+b...n5 046 108 029
+b...r1 028 025 061
+c...ir 040 042 088
+c...ll 128 007 125
+d...il 083 078 099
+g...ku 114 068 012
+h...a1 028 059 066
+h...da 115 026 023
+h...le 076 058 071
+h...n1 095 087 014
+h...om 093 132 043
+h...rd 030 125 058
+h...u2 048 050 052
+i...a1 070 049 118
+j...oi 009 012 006
+k...ac 106 089 047
+k...a1 063 078 016
+k...ik 096 017 053
+k...im 130 073 066
+k...j4 081 130 061
+k...ll 017 122 010
+k...my 089 028 123
+k...oj 096 130 065
+k...ok 067 037 112
+k...om 107 068 066
+k...ra 115 024 036
+k...re 103 054 074
+k...ri 008 094 067
+k...r1 100 071 084
+k...ur 041 011 087
+m...nd 067 002 013
+m...ub 021 088 060
+m...u2 034 049 085
+m...33 075 065 011
+n...os 051 024 034
+n...11 131 011 008
+pa...r 002 028 116
+po...r 054 128 051
+r...am 120 067 109
+r...au 035 118 096
+r...a8 117 112 137
+r...da 122 091 071
+s...ak 072 129 037
+s...at 109 050 053
+s...da 034 019 113
+s...lg 031 015 137
+s...l6 130 063 040
+s...nd 040 073 003
+s...ol 063 025 005
+s...uc 113 043 086
+s...51 073 039 065
+t...la 133 037 097
+t...yo 113 050 098
+v...la 117 005 019
+v...lh 053 101 089
+v...li 130 065 115
+v...18 117 134 095
+----
+
+
+=== Předzpracování
+
+
+Vyberte si libovolný (podle vás nejednodušší) z vašich tří krystalů a připravte ho pro tisk. Můžete s ním dělat prakticky cokoliv (opravovat, otáčet, krájet, přidávat podpůrné struktury), ale je třeba zachovat při tisku rozměry a tvar krystalu. Výstupem je jeden nebo více STL souborů připravených na slicing a velmi stručný popis toho, *co* jste udělali a *proč* (ne nutně písemně, ale při odevzdávání je třeba postup vysvětlit a to i několik týdnů po vykonání vašich změn).
+
+
+=== Slicing
+
+
+Naslicujte libovolným programem vámi připravená tisková STLka s použitím vhodných nastavení pro naše tiskárny Voron. Pro OrcaSlicer vyjděte z profilů používaných na cvičení. Profily pro případné jiné programy pro vás nemáme, ale smíte si vytvořit svoje. Výstupem je 3mf soubor z Orcy nebo exportovaný slicovací profil z jiného programu a jeden nebo více GCODE souborů. Jednotlivé části můžete tisknout najednou (pokud se vejdou na tiskovou plochu a pokud vám to připadá vhodné) nebo postupně, případě kombinaci obojího.
+
+
+=== Tisk a postprocessing
+
+
+V zápočtových akcích vypsaných v KOSu, probíhajících ve zkouškovém období, budete v laboratoři na tiskárnách Voron z materiálu PETG tisknout krystaly z vámi připravených GCODE souborů. Po dotisknutí je třeba výtisk náležitě opracovat - oddělat podpory, slepit atp. Výsledný krystal by měl vypadat co nejpodobněji zadanému modelu. Na jeden termín je celkem maximálně 5 hodin (tisk + postprocessing).
+
+V případě absolutního selhání při tisku je možné tisk opakovat s novým GCODEm, ale pouze jednou. V případě technického problému na naší straně se samozřejmě o promarněný pokus nejedná.
+
+
+== Odevzdání, hodnocení
+
+Odevzdává se na GitHub: https://classroom.github.com/a/PzGZON0y
+
+Odevzdáno musí být v momentě vašeho termínu zápočtu.
+Termíny budou vypsány koncem semestru.
+
+Veškeré slovní popisy uveďte přímo do README (či README.md apod.) v
+repozitáři. **Tentokrát nečekejte žádnou automatickou issue.**
+
+V repozitáři odevzdávejte:
+
+- scad soubor s modulem `crystal` a `random_crystal`
+- scad soubor **volající** modul `crystal` s vašimi vybranými daty (bez deklarace/definice modulu `crystal`)
+- STL soubor s vaším vybraným krystalem z ownCloudu
+- Všechny tiskové STL soubory
+- Všechny tiskové GCODE soubory
+- 3mf soubor z OrcaSlieru s veškerým slicovacím nastavením a/nebo profil pro jiný slicovací program, který jste použili
+- Případné další potřebné soubory
+
+Hodnocení dle následující tabulky:
+
+|===
+| **Část** | **body** | **poznámka** 
+| **Moduly pro OpenSCAD:** | **10** |
+| Modul `crystal` funguje podle zadání | 3 | povinný v rámci části
+| Modul `random_crystal` funguje podle zadání | 4 | povinný v rámci části
+| Zdrojový kód je vhodně členěn a komentován | 3 |
+| **Příprava na tisk:** | **10** |
+| Vhodně připravená tisková STLka | 5 | povinný v rámci části
+| Mesh ve všech tiskových STL je v pořádku | 5 | za chyby neovlivňující tisk se strhává jen 2.5 bodu
+| **Slicing:** | **10** |
+| Podpory | 5 | nejsou potřeba (5 b.), vhodné užití* (2.5 b.), zbytečné užití (0 b.)
+| Vhodné nastavení parametrů tisku | 5 | perimetry, výplň, výška vrstvy...
+| **Tisk:** | **10** |
+| Jedná se o výtisk modelu dle zadání, výtisk je opracovaný (např. bez podpor, slepený atp.) | 4 | povinný v rámci části
+| Výtisk neobsahuje vady zjevně způsobené nevhodnou přípravou modelu | 3 |
+| Výtisk neobsahuje vady zjevně způsobené nevhodnou přípravou tiskárny (příprava tiskové plochy, nevhodné teploty) | 3|
+|===
+
+* Pouze za podpory vygenerované při slicování se strhávají body. Protože jsme v části slicing.
+
+Hodnocení je rozděleno na 4 dílčí části. *Povinný v rámci části*
+znamená, že bez splnění tohoto úkolu student za danou část nedostane
+žádné body. V případě opravného tisku se již neopravují hodnoty bodů v
+ostatních dílčích částech. Pokud tedy například nezvládnete slicing,
+dostanete z něj nula bodů a (celkem logicky) fatálně selže i tisk,
+můžete v náhradním termínu dostat body za tisk, za slicing už ale žádné
+body nedostanete.
