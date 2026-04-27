@@ -1,4 +1,4 @@
-= Semestrální práce B242
+= Semestrální práce B252
 :toc:
 :imagesdir: media/
 ifdef::env-github[]
